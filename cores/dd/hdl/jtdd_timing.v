@@ -42,6 +42,12 @@ wire [8:0] nextn = hover ? 9'd0 : hn+9'd1;
 reg aux=1'b0;
 reg [VBDLY-1:0] preVBL;
 
+`ifdef SIMULATION
+initial begin
+    preVBL = {VBDLY{1'b0}};
+end
+`endif
+
 always @(posedge clk) begin
     VPOS <= vn ^ {8{flip}};
 end
