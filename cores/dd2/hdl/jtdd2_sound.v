@@ -29,7 +29,6 @@ module jtdd2_sound(
     input           rst,
     input           H8,
     // communication with main CPU
-    input           snd_rstb,
     input           snd_irq,
     input   [ 7:0]  snd_latch,
     // ROM
@@ -44,7 +43,7 @@ module jtdd2_sound(
     input           adpcm_ok,
 
     // Sound output
-    output reg signed [15:0] sound,
+    (*keep*) output reg signed [15:0] sound,
     output                   sample    
 );
 
@@ -56,15 +55,15 @@ assign adpcm1_addr = 17'd0;
 wire [ 7:0] cpu_dout, ram_dout, fm_dout, oki_dout;
 wire [15:0] A;
 reg  [ 7:0] cpu_din;
-wire        wr_n, int_n, nmi_n;
+(*keep*) wire        wr_n, int_n, nmi_n;
 wire signed [13:0] adpcm_snd;
-wire signed [15:0] fm_left, fm_right;
+(*keep*) wire signed [15:0] fm_left, fm_right;
 reg  signed [15:0] snd_pre;
-reg ram_cs, latch_cs, oki_cs, fm_cs;
+(*keep*) reg ram_cs, latch_cs, oki_cs, fm_cs;
 wire oki_wrn = oki_cs & ~wr_n;
 assign rom_addr = A[14:0];
 
-wire signed [15:0] adpcm_ext  = { adpcm_snd , 2'b0 };
+(*keep*) wire signed [15:0] adpcm_ext  = { adpcm_snd , 2'b0 };
 wire cen_fm, cen_fm2, cen_oki;
 wire mreq_n;
 
@@ -179,7 +178,7 @@ jt51 u_jt51(
     .dout       ( fm_dout   ), // data out
     .ct1        (           ),
     .ct2        (           ),
-    .irq_n      ( int_n     ),  // I do not synchronize this signal
+    .irq_n      ( int_n     ),
     // Low resolution output (same as real chip)
     .sample     ( sample    ), // marks new output sample
     .left       (           ),

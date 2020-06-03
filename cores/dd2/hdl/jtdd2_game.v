@@ -140,7 +140,7 @@ localparam [21:0] SCR_SDRAM  = 22'h6_0000;
 localparam [21:0] OBJ_SDRAM  = 22'h8_0000;
 
 assign {dipsw_b, dipsw_a} = dipsw;
-assign dip_flip = dipsw[7];
+assign dip_flip = flip;
 
 // Pixel signals all from 48MHz clock
 wire pxl_cenb, main4, alt4, alt12;
@@ -217,20 +217,6 @@ u_prom(
     .sdram_ack    ( sdram_ack       )
 );
 
-reg [1:0] last_sb;
-reg cheat_main, cheat_sub;
-
-always @(posedge clk) if(cen12) begin
-    last_sb <= start_button;
-    if( !start_button[1] && last_sb[1] ) cheat_main <= 1;
-    else if( VBL ) cheat_main<=0;
-    if( !start_button[0] && last_sb[0] ) cheat_sub <= 1;
-    else if( VBL ) cheat_sub<=0;
-end
-
-wire mcu_cheat = mcu_irqmain || cheat_main;
-wire mcu_nmi_cheat = mcu_nmi_set || cheat_sub;
-
 `ifndef NOMAIN
 jtdd_main u_main(
     .clk            ( clk24         ),  // slower clock to ease synthesis
@@ -240,7 +226,7 @@ jtdd_main u_main(
     .VBL            ( VBL           ),
     .IMS            ( IMS           ), // =VPOS[3]
     // MCU
-    .mcu_irqmain    ( mcu_cheat     ),
+    .mcu_irqmain    ( mcu_irqmain   ),
     .mcu_halt       ( mcu_halt      ),
     .mcu_ban        ( mcu_ban       ),
     .com_cs         ( com_cs        ),
@@ -333,7 +319,7 @@ jtdd2_sub u_sub(
     .shared_dout  (  mcu_ram         ),
     // CPU Interface
     .com_cs       (  com_cs          ),
-    .mcu_nmi_set  (  mcu_nmi_cheat   ),
+    .mcu_nmi_set  (  mcu_nmi_set     ),
     .mcu_halt     (  mcu_halt        ),
     .mcu_irqmain  (  mcu_irqmain     ),
     .mcu_ban      (  mcu_ban         ),
@@ -365,7 +351,6 @@ jtdd2_sound u_sound(
     .rst         ( rst           ),
     .H8          ( H8            ),
     // communication with main CPU
-    .snd_rstb    ( ~rst          ),
     .snd_irq     ( snd_irq       ),
     .snd_latch   ( snd_latch     ),
     // ROM

@@ -23,10 +23,9 @@
 # SDRAM
 ../../../modules/jtframe/hdl/sdram/jtframe_rom.v
 ../../../modules/jtframe/hdl/sdram/jtframe_romrq.v
-../../../modules/jtframe/hdl/cpu/jtframe_sys6809.v
+#../../../modules/jtframe/hdl/cpu/jtframe_sys6809.v
 # Other
 ../../../modules/jtframe/hdl/jtframe_ff.v
 ../../../modules/jtframe/hdl/jtframe_sh.v
-../../../modules/jtframe/hdl/keyboard/jtframe_4wayjoy.v
 ../../../modules/jtframe/hdl/sound/jtframe_mixer.v
 ../../../modules/jtframe/hdl/video/jtframe_credits.v
