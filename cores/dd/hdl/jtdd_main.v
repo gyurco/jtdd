@@ -139,6 +139,7 @@ always @(*) begin
                             3'd1: w3801   = 1'b1; // H scroll
                             3'd2: w3802   = 1'b1; // V scroll
                             3'd6: w3806   = 1'b1; // sound latch CS
+									 default:;
                         endcase
                     end
                 end

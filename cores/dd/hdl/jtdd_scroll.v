@@ -45,7 +45,7 @@ module jtdd_scroll(
 );
 
 reg         hi_we, lo_we;
-reg  [ 9:0] ram_addr, scan;
+reg  [ 9:0] scan;
 wire [ 7:0] hi_data, lo_data, cpu_hi, cpu_lo;
 reg  [ 8:0] hscr, vscr;
 
@@ -58,7 +58,6 @@ always @(*) begin
     lo_we     = cen_Q && scr_cs && !cpu_wrn &&  cpu_AB[0];
     hi_we     = cen_Q && scr_cs && !cpu_wrn && !cpu_AB[0];
     scan      = { vscr[8], hscr[8], vscr[7:4], hscr[7:4] };
-    ram_addr  = /*hscr[0]*/ scr_cs ? cpu_AB[10:1] : scan;
     scr_dout  = !cpu_AB[0] ? cpu_hi : cpu_lo;
 end
 

@@ -1,1 +1,0 @@
-../mist/jtdd2.tcl

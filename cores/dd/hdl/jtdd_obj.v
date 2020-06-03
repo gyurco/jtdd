@@ -62,7 +62,7 @@ reg  copy_done;
 reg  line, copy;
 reg  ram_we;
 
-integer state;
+reg [2:0] state;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -70,61 +70,61 @@ always @(posedge clk, posedge rst) begin
         scan     <= 9'd0;
         offset   <= 3'd0;
         line     <= 1'b1;
-        state    <= 0;
+        state    <= 3'd0;
         maxline  <= 5'd0;
     end else begin
         last_HBL <= HBL;
         case( state )
-            0: if(negedge_HBL) begin // wait for non blanking
-                state    <= state+1;
+            3'd0: if(negedge_HBL) begin // wait for non blanking
+                state    <= state+3'd1;
                 line     <= ~line;
                 scan     <= 9'd0;
                 offset   <= 3'd0;
                 wait_mem <= 1'b1;
                 maxline  <= 5'd0;
             end
-            1: begin // get object's y
+            3'd1: begin // get object's y
                 wait_mem <= 1'b0;
                 if( !wait_mem ) begin
                     scan_y    <= obj_dout; // +0
                     offset   <= 3'd1;
                     wait_mem <= 1'b1;
-                    state    <= state+1;
+                    state    <= state+3'd1;
                 end
             end
-            2: begin // advance until a visible object is found
+            3'd2: begin // advance until a visible object is found
                 wait_mem  <= 1'b0;
                 if( !wait_mem ) begin
                     scan_attr <= obj_dout; // +1
                     if( !inzone || !obj_dout[7] /*enable bit*/ ) begin
                         if( !scan_done ) begin
-                            state    <= 1;
+                            state    <= 3'd1;
                             offset   <= 3'd0; // try next object
                             scan     <= next_scan;
                             wait_mem <= 1'b1;
                         end else begin
-                            state    <= 0; // wait for next line
+                            state    <= 3'd0; // wait for next line
                         end
                     end
                     else begin
                         scan_y <= sumy[7:0]; // update the value
                         offset <= 3'd3;
-                        state  <= 3;
+                        state  <= 3'd3;
                     end
                 end else begin
                     offset <= 3'd2;
                 end
             end
-            3: begin
+            3'd3: begin
                 offset     <= 3'd4;
                 scan_attr2 <= obj_dout; // +2
-                state      <= 4;
+                state      <= 3'd4;
             end
-            4: begin
+            3'd4: begin
                 scan_id <= obj_dout; // +3
-                state   <= 5;
+                state   <= 3'd5;
             end
-            5: begin
+            3'd5: begin
                 scan_x  <= obj_dout; // +4
                 `ifdef DD2
                 if( scan_attr[5:4]!=2'b00 )
@@ -133,24 +133,24 @@ always @(posedge clk, posedge rst) begin
                 if( scan_attr[4])
                     scan_id[0] <= scan_id[0]^scan_y[4];
                 `endif
-                state   <= 6;
+                state   <= 3'd6;
                 copy    <= 1'b1;
             end
-            6: begin
+            3'd6: begin
                 copy <= 1'b0;
                 if( copy_done ) begin
                     if( !scan_done & ~&maxline ) begin
-                        state    <= 1;
+                        state    <= 3'd1;
                         offset   <= 3'd0; // try next object
                         scan     <= next_scan;
                         wait_mem <= 1'b1;
                         maxline  <= maxline + 5'd1;
                     end else begin
-                        state    <= 0; // wait for next line
+                        state    <= 3'd0; // wait for next line
                     end                
                 end
             end
-            default: state <= 0;
+            default: state <= 3'd0;
         endcase
     end
 end
@@ -214,7 +214,7 @@ always @(posedge clk, posedge rst) begin
         end
         if( copying ) begin
             if(ok_dly && rom_ok && !wait_buf[0] ) begin
-                pxl_cnt <= pxl_cnt+1;
+                pxl_cnt <= pxl_cnt+4'd1;
                 if( pxl_cnt!=4'd0 ) posx <= posx + 9'd1;
                 if(pxl_cnt==4'hf) begin
                     copy_done<=1'b1;
@@ -246,7 +246,7 @@ wire [7:0] ln_dout;
 reg        ln_we;
 reg        copying_dly;
 
-localparam obj_dly = 6;
+localparam [7:0] obj_dly = 8'd6;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -259,7 +259,7 @@ always @(posedge clk, posedge rst) begin
     else begin
         copying_dly <= copying & ok_dly & rom_ok;
         if( HBL ) begin // clear memory during the blank
-            rd_addr <= 9'd0-obj_dly;
+            rd_addr <= 8'd0-obj_dly;
             ln_data <= 8'h0;
             ln_addr[8:0] <= ln_addr[8:0] + 9'd1;
             ln_we   <= 1'b1;

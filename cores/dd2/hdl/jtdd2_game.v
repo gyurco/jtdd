@@ -114,6 +114,7 @@ wire               service;
 
 assign dwnld_busy = downloading;
 assign service    = 1;
+assign prog_rd    = 0;
 
 wire cen12, cen8, cen6, cen4, cen3, cen3q, cen1p5, cen12b, cen6b, cen3b, cen3qb;
 wire cpu_cen, turbo;
@@ -139,7 +140,7 @@ localparam PROM_ADDR   = 22'h190000;
 localparam [21:0] SCR_SDRAM  = 22'h6_0000;
 localparam [21:0] OBJ_SDRAM  = 22'h8_0000;
 
-assign {dipsw_b, dipsw_a} = dipsw;
+assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign dip_flip = flip;
 
 // Pixel signals all from 48MHz clock
@@ -183,11 +184,9 @@ jtframe_cen24 u_cen24(
 `ifdef DD48
 assign cen12 = pxl2_cen;
 assign cen4  = main4;
-wire clk_alt = clk;
 `else 
 assign cen12 = alt12;
 assign cen4  = alt4;
-wire clk_alt = clk24;
 `endif
 
 jtdd_prom_we #(

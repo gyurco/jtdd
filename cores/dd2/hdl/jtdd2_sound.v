@@ -47,11 +47,6 @@ module jtdd2_sound(
     output                   sample    
 );
 
-assign adpcm0_cs = 1'b0;
-assign adpcm1_cs = 1'b0;
-assign adpcm0_addr = 17'd0;
-assign adpcm1_addr = 17'd0;
-
 wire [ 7:0] cpu_dout, ram_dout, fm_dout, oki_dout;
 wire [15:0] A;
 reg  [ 7:0] cpu_din;
@@ -96,6 +91,7 @@ always @(*) begin
                 4'b0001: fm_cs    = 1'b1; // 8800-8801
                 4'b0011: oki_cs   = 1'b1; // 9800
                 4'b0100: latch_cs = 1'b1; // a000
+                default:;
             endcase
         end
         else rom_cs = 1'b1;
@@ -103,13 +99,13 @@ always @(*) begin
 end
 
 always @(*) begin
-    cpu_din = 8'hff;
     case(1'b1)
         rom_cs:   cpu_din = rom_data;
         ram_cs:   cpu_din = ram_dout;
         latch_cs: cpu_din = snd_latch;
         fm_cs:    cpu_din = fm_dout;
         oki_cs:   cpu_din = oki_dout;
+        default:  cpu_din = 8'hff;
     endcase
 end
 
