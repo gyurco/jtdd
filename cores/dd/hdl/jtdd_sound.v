@@ -48,40 +48,36 @@ module jtdd_sound(
     input   [ 7:0]  adpcm1_data,
     input           adpcm1_ok,
     // Sound output
-    output reg signed [15:0] sound,
+    output     signed [15:0] sound,
     output                   sample    
 );
 
-wire [ 7:0] cpu_dout, ram_dout, fm_dout;
-wire [15:0] A;
-reg  [ 7:0] cpu_din;
-wire        RnW, firq_n, irq_n;
+wire        [ 7:0] cpu_dout, ram_dout, fm_dout;
+wire        [15:0] A;
+reg         [ 7:0] cpu_din;
+wire               RnW, firq_n, irq_n;
+reg                ram_cs, latch_cs, ad_cs, fm_cs, ad0_cs, ad1_cs;
+wire               cen_fm, cen_fm2;
 wire signed [11:0] adpcm0_snd, adpcm1_snd;
 wire signed [15:0] fm_left, fm_right;
-reg  signed [15:0] snd_pre;
-reg ram_cs, latch_cs, ad_cs, fm_cs, ad0_cs, ad1_cs;
 
 assign rom_addr = A[14:0];
 
-wire signed [15:0] ext0 = { {1{adpcm0_snd[11]}}, adpcm0_snd, 3'b0 };
-wire signed [15:0] ext1 = { {1{adpcm1_snd[11]}}, adpcm1_snd, 3'b0 };
-wire cen_fm, cen_fm2;
-
-always @(posedge clk) begin
-    // snd_pre  <= fm_left + ext0 + ext1;
-    sound  <= fm_left + ext0 + ext1;
-end
-
-// Adds a little bit of gain, a x2 factor would be too much
-// jtframe_limamp #(.win(16),.wout(16)) u_amp (
-//     .clk    ( clk           ),
-//     .cen    ( cen_fm2       ),
-//     // input signals
-//     .sndin  ( snd_pre       ),
-//     // gain for each channel in 4.4 fixed point format
-//     .gain   ( 8'h18         ),
-//     .sndout ( sound         )
-// );
+jtframe_mixer #(.w0(16),.w1(16),.w2(12), .w3(12), .wout(16))(
+    .clk    ( clk           ),
+    .cen    ( cen_fm2       ),
+    // input signals
+    .ch0    ( fm_left       ),
+    .ch1    ( fm_right      ),
+    .ch2    ( adpcm0_snd    ),
+    .ch3    ( adpcm1_snd    ),
+    // gain for each channel in 4.4 fixed point format
+    .gain0  ( 8'h10         ),
+    .gain1  ( 8'h10         ),
+    .gain2  ( 8'hFF         ),
+    .gain3  ( 8'hFF         ),
+    .mixed  ( sound         )
+);
 
 always @(*) begin
     rom_cs   = A[15];

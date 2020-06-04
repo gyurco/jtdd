@@ -55,8 +55,10 @@ end
 assign M = m[5:0];
 assign HPOS = hn[7:0] ^ {8{flip}};
 
-wire [8:0] HS1 = 9'd245+((9'd383-9'd255)>>1);
-wire [8:0] HS0 = 9'd265+((9'd383-9'd255)>>1);
+wire [8:0] HS1 = 9'd309;
+wire [8:0] HS0 = HS1+9'd27; // 4.5us
+wire [8:0] VS1 = 8'he9;
+wire [8:0] VS0 = VS1+8'h3;
 
 always @(posedge clk) if(pxl_cen) begin
     // bus phases
@@ -68,8 +70,8 @@ always @(posedge clk) if(pxl_cen) begin
     if( hn==HS1 ) begin
         HS <= 1'b1;
         //VS <= vn==8'hef && VBL;
-        if( vn==8'he9 && VBL ) VS <= 1'b1;
-        if( vn==8'hed && VBL ) VS <= 1'b0;
+        if( vn==VS1 && VBL ) VS <= 1'b1;
+        if( vn==VS0 && VBL ) VS <= 1'b0;
     end
     if( hn==HS0 ) HS <= 1'b0;
     if( hn == 9'd255 ) begin
