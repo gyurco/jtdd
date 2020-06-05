@@ -83,7 +83,7 @@ always @(posedge clk) if(pxl_cen) begin
             vn <= (VBL&&!aux) ? 8'he8 : 8'h8;
         end else begin
             vn <= vn + 8'd1;
-            if( vn == 8'hF7 ) begin
+            if( vn == 8'hEF ) begin
                 preVBL[0] <= 1'b1;
                 aux <= VBL;
             end
