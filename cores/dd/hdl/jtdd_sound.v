@@ -63,7 +63,7 @@ wire signed [15:0] fm_left, fm_right;
 
 assign rom_addr = A[14:0];
 
-jtframe_mixer #(.w0(16),.w1(16),.w2(12), .w3(12), .wout(16))(
+jtframe_mixer #(.w0(16),.w1(16),.w2(12), .w3(12), .wout(16)) u_mixer(
     .clk    ( clk           ),
     .cen    ( cen_fm2       ),
     // input signals

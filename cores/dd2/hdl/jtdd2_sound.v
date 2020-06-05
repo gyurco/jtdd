@@ -60,7 +60,7 @@ assign rom_addr = A[14:0];
 wire cen_fm, cen_fm2, cen_oki;
 wire mreq_n;
 
-jtframe_mixer #(.w0(16),.w1(16),.w2(14),.w3(14), .wout(16))(
+jtframe_mixer #(.w0(16),.w1(16),.w2(14),.w3(14), .wout(16)) u_mixer(
     .clk    ( clk           ),
     .cen    ( cen_fm2       ),
     // input signals
