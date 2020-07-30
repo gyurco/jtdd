@@ -44,7 +44,7 @@ module jtdd2_sound(
 
     // Sound output
     output     signed [15:0] sound,
-    output                   sample    
+    output                   sample
 );
 
 wire [ 7:0] cpu_dout, ram_dout, fm_dout, oki_dout;
@@ -60,7 +60,7 @@ assign rom_addr = A[14:0];
 wire cen_fm, cen_fm2, cen_oki;
 wire mreq_n;
 
-jtframe_mixer #(.w0(16),.w1(16),.w2(14),.w3(14), .wout(16)) u_mixer(
+jtframe_mixer #(.W0(16),.W1(16),.W2(14),.W3(14), .WOUT(16)) u_mixer(
     .clk    ( clk           ),
     .cen    ( cen_fm2       ),
     // input signals
@@ -69,10 +69,10 @@ jtframe_mixer #(.w0(16),.w1(16),.w2(14),.w3(14), .wout(16)) u_mixer(
     .ch2    ( adpcm_snd     ),
     .ch3    ( adpcm_snd     ),
     // gain for each channel in 4.4 fixed point format
-    .gain0  ( 8'h20         ),
-    .gain1  ( 8'h20         ),
-    .gain2  ( 8'hFF         ),
-    .gain3  ( 8'hFF         ),
+    .gain0  ( 8'h28         ),
+    .gain1  ( 8'h28         ),
+    .gain2  ( 8'h38         ),
+    .gain3  ( 8'h38         ),
     .mixed  ( sound         )
 );
 

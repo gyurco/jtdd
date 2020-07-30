@@ -49,7 +49,7 @@ module jtdd_sound(
     input           adpcm1_ok,
     // Sound output
     output     signed [15:0] sound,
-    output                   sample    
+    output                   sample
 );
 
 wire        [ 7:0] cpu_dout, ram_dout, fm_dout;
@@ -63,7 +63,7 @@ wire signed [15:0] fm_left, fm_right;
 
 assign rom_addr = A[14:0];
 
-jtframe_mixer #(.w0(16),.w1(16),.w2(12), .w3(12), .wout(16)) u_mixer(
+jtframe_mixer #(.W0(16),.W1(16),.W2(12), .W3(12), .WOUT(16)) u_mixer(
     .clk    ( clk           ),
     .cen    ( cen_fm2       ),
     // input signals
@@ -72,10 +72,10 @@ jtframe_mixer #(.w0(16),.w1(16),.w2(12), .w3(12), .wout(16)) u_mixer(
     .ch2    ( adpcm0_snd    ),
     .ch3    ( adpcm1_snd    ),
     // gain for each channel in 4.4 fixed point format
-    .gain0  ( 8'h10         ),
-    .gain1  ( 8'h10         ),
-    .gain2  ( 8'hFF         ),
-    .gain3  ( 8'hFF         ),
+    .gain0  ( 8'h20         ),
+    .gain1  ( 8'h20         ),
+    .gain2  ( 8'h20         ),
+    .gain3  ( 8'h20         ),
     .mixed  ( sound         )
 );
 
@@ -137,7 +137,7 @@ jtframe_ff u_ff(
 );
 
 jtframe_sys6809 #(.RAM_AW(11)) u_cpu(
-    .rstn       ( ~rst      ), 
+    .rstn       ( ~rst      ),
     .clk        ( clk       ),
     .cen        ( cen12     ),    // This is normally the input clock to the CPU
     .cpu_cen    ( cpu_cen   ),   // 1/4th of cen -> 3MHz
