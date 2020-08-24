@@ -20,6 +20,7 @@
 
 module jtdd2_game(
     input           clk,
+    input           clk48,
     input           clk24,
     input           rst,
     output          pxl2_cen,
@@ -146,12 +147,20 @@ assign dip_flip = flip;
 // Pixel signals all from 48MHz clock
 wire pxl_cenb, main4, alt4, alt12;
 
+
+jtframe_cen96 u_pxl_cen(
+    .clk    ( clk       ),    // 96 MHz
+    .cen12  ( pxl2_cen  ),
+    .cen6   ( pxl_cen   ),
+    .cen6b  ( pxl_cenb  )
+);
+
 jtframe_cen48 u_cen(
-    .clk     (  clk      ),    // 48 MHz
-    .cen12   (  pxl2_cen ),
+    .clk     (  clk48    ),    // 48 MHz
+//    .cen12   (  pxl2_cen ),
     .cen16   (           ),
     .cen8    (           ),
-    .cen6    (  pxl_cen  ),
+//    .cen6    (  pxl_cen  ),
     .cen4    (           ),
     .cen4_12 (  main4    ),
     .cen3    (  cen3     ),
@@ -160,9 +169,10 @@ jtframe_cen48 u_cen(
     .cen3qb  (  cen3qb   ), // 1/4 advanced with respect to cen3b
     .cen1p5  (  cen1p5   ),
     .cen12b  (  cen12b   ),
-    .cen6b   (  pxl_cenb ),
+//    .cen6b   (  pxl_cenb ),
     .cen1p5b (           )
 );
+
 
 // CPU and sub CPU from slower clock in order to
 // prevent timing error in 6809 CC bit Z
@@ -332,10 +342,10 @@ jtdd2_sub u_sub(
 reg    irqmain;
 assign mcu_irqmain = irqmain;
 assign mcu_ban = 1'b0;
-always @(posedge clk) irqmain <= mcu_nmi_set;
+always @(posedge clk48) irqmain <= mcu_nmi_set;
 wire shared_we = com_cs && !cpu_wrn;
 jtframe_ram #(.aw(9)) u_shared(
-    .clk    ( clk         ),
+    .clk    ( clk48       ),
     .cen    ( cpu_cen     ),
     .data   ( cpu_dout    ),
     .addr   ( cpu_AB[8:0] ),
@@ -346,7 +356,7 @@ jtframe_ram #(.aw(9)) u_shared(
 
 `ifndef NOSOUND
 jtdd2_sound u_sound(
-    .clk         ( clk           ),
+    .clk         ( clk48         ),
     .rst         ( rst           ),
     .H8          ( H8            ),
     // communication with main CPU
