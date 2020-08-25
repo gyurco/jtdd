@@ -18,6 +18,7 @@
 
 module jtdd_game(
     input           clk,
+    input           clk48,
     input           clk24,
     input           rst,
     output          pxl2_cen,
@@ -124,12 +125,19 @@ wire pxl_cenb;
 assign {dipsw_b, dipsw_a} = dipsw;
 assign dip_flip = dipsw[7];
 
+jtframe_cen96 u_pxl_cen(
+    .clk    ( clk       ),    // 96 MHz
+    .cen12  ( pxl2_cen  ),
+    .cen6   ( pxl_cen   ),
+    .cen6b  ( pxl_cenb  )
+);
+
 jtframe_cen48 u_cen(
-    .clk     (  clk      ),    // 48 MHz
-    .cen12   (  pxl2_cen ),
+    .clk     (  clk48    ),    // 48 MHz
+    .cen12   (           ),
     .cen16   (           ),
     .cen8    (           ),
-    .cen6    (  pxl_cen  ),
+    .cen6    (           ),
     .cen4    (  cen4     ),
     .cen4_12 (           ),
     .cen3    (  cen3     ),
@@ -138,7 +146,7 @@ jtframe_cen48 u_cen(
     .cen3qb  (  cen3qb   ), // 1/4 advanced with respect to cen3b
     .cen1p5  (  cen1p5   ),
     .cen12b  (  cen12b   ),
-    .cen6b   (  pxl_cenb ),
+    .cen6b   (           ),
     .cen1p5b (           )
 );
 
@@ -164,7 +172,7 @@ jtframe_cen24 u_cen24(
 `ifdef DD48
 assign cen12 = pxl2_cen;
 assign cen6 = pxl_cen;
-wire clk_alt = clk;
+wire clk_alt = clk48;
 `else 
 assign cen12 = alt12;
 assign cen6  = alt6;
@@ -284,10 +292,10 @@ jtdd_mcu u_mcu(
 reg    irqmain;
 assign mcu_irqmain = irqmain;
 assign mcu_ban = 1'b0;
-always @(posedge clk) irqmain <= mcu_nmi_set;
+always @(posedge clk48) irqmain <= mcu_nmi_set;
 wire shared_we = com_cs && !cpu_wrn;
 jtframe_ram #(.aw(9)) u_shared(
-    .clk    ( clk         ),
+    .clk    ( clk48       ),
     .cen    ( cpu_cen     ),
     .data   ( cpu_dout    ),
     .addr   ( cpu_AB[8:0] ),
