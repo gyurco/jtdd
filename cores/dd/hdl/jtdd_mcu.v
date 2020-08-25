@@ -126,7 +126,8 @@ end
 
 // Clock enable
 reg  waitn;
-wire cpu_cen = cen6 & (waitn | ~mcu_rstb);
+wire cpu_cen = cen6 & (cpu_cen_cnt == 0) & (waitn | ~mcu_rstb);
+reg  [1:0] cpu_cen_cnt;
 
 always @(posedge clk) begin : cpu_clockenable
     if( !mcu_rstb ) begin
@@ -134,6 +135,7 @@ always @(posedge clk) begin : cpu_clockenable
     end else begin
         if( rom_cs && !rom_ok ) waitn <= 1'b0;
         else if( rom_ok) waitn <= 1'b1;
+        if (cen6) cpu_cen_cnt <= cpu_cen_cnt + 1'd1;
     end
 end
 
